@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PageSim | Page Replacement Algorithm Visualizer</title><meta name="description" content="Interactive FIFO, LRU and Optimal page replacement simulator with step-by-step animation and comparison."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d9488'/%3E%3Ctext x='32' y='45' font-size='36' text-anchor='middle' fill='white' font-family='Arial' font-weight='700'%3EP%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#eef3f8;--card:#fff;--tx:#0b1b2b;--mu:#5b6b7c;--bd:#d9e3ee;--ac:#0d9488;--ac2:#6366f1;--hit:#16a34a;--hitb:#dcfce7;--flt:#dc2626;--fltb:#fee2e2;--cur:#fef3c7}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1020;--card:#141a2e;--tx:#e8ecf8;--mu:#94a3b8;--bd:#263050;--ac:#14b8a6;--ac2:#818cf8;--hit:#4ade80;--hitb:#12301f;--flt:#f87171;--fltb:#3a1519;--cur:#3b3410}}
+:root[data-theme="dark"]{--bg:#0b1020;--card:#141a2e;--tx:#e8ecf8;--mu:#94a3b8;--bd:#263050;--ac:#14b8a6;--ac2:#818cf8;--hit:#4ade80;--hitb:#12301f;--flt:#f87171;--fltb:#3a1519;--cur:#3b3410}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}
+.w{max-width:1050px;margin:auto;padding:0 18px}
+nav{position:sticky;top:env(safe-area-inset-top,0px);background:var(--card);border-bottom:1px solid var(--bd);z-index:5}
+nav .w{display:flex;align-items:center;justify-content:space-between;height:56px}
+nav b{font-size:16px}nav a{color:var(--mu);text-decoration:none;margin-left:16px;font-size:14px}
+.hero{padding:64px 0 52px;text-align:center;background:radial-gradient(circle at 15% 0,#0f766e,transparent 50%),radial-gradient(circle at 90% 30%,#4338ca,transparent 55%),#0a1628;color:#fff;margin-bottom:24px}
+.hero h1{font-size:clamp(28px,6vw,48px);margin:0 0 12px;letter-spacing:-.02em}
+.hero h1 span{background:linear-gradient(90deg,#5eead4,#a5b4fc);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{color:#cbd5e1;max-width:640px;margin:0 auto 20px;font-size:17px}.cta a{display:inline-block;margin:6px;padding:11px 22px;border-radius:10px;font-weight:700;text-decoration:none;font-size:15px}.cta .a{background:linear-gradient(90deg,#14b8a6,#6366f1);color:#fff}.cta .b{border:1px solid #475569;color:#e2e8f0}
+.badges span{display:inline-block;margin:4px;padding:5px 12px;border:1px solid #334155;border-radius:99px;background:rgba(255,255,255,.07);font-size:13px;color:#cbd5e1}.card{box-shadow:0 4px 18px rgba(15,23,42,.06)}h2::after{content:'';display:block;width:44px;height:3px;border-radius:3px;margin-top:6px;background:linear-gradient(90deg,var(--ac),var(--ac2))}.steps{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}.steps div{position:relative;padding:16px;border:1px solid var(--bd);border-radius:12px;background:var(--bg)}.steps em{display:flex;width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;font-style:normal;font-weight:800;align-items:center;justify-content:center;margin-bottom:8px}.steps b{display:block;margin-bottom:4px}.steps span{color:var(--mu);font-size:14px}.info{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-top:14px}.info div{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--mu)}.info b{display:block;color:var(--tx);font-size:13px;margin-bottom:2px}.key{display:inline-block;border:1px solid var(--bd);border-bottom-width:2px;border-radius:5px;padding:0 6px;font-size:12px;background:var(--bg)}.lg{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--mu);margin-top:6px}.lg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px;margin-bottom:20px}
+h2{margin:0 0 14px;font-size:22px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+label{font-size:13px;color:var(--mu);display:block;margin-bottom:4px}
+input,select{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font-size:15px}
+button{cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:9px 16px;border-radius:8px;font-size:14px;font-weight:600}
+button.p{background:var(--ac);color:#fff;border-color:var(--ac)}button:hover{filter:brightness(.95)}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.strip,.scroll{overflow-x:auto}
+.cells{display:flex;gap:6px;padding:4px 0}
+.cell{min-width:44px;text-align:center;padding:8px 0;border-radius:8px;border:1px solid var(--bd);font-weight:700}
+.cell.cur{background:var(--cur);border-color:#f59e0b}
+table{border-collapse:separate;border-spacing:6px;margin:auto 0}
+td,th{min-width:44px;height:42px;text-align:center;border-radius:8px;font-weight:700;font-size:15px}
+th{color:var(--mu);font-weight:600;font-size:12px}td.fr{background:var(--bg);border:1px solid var(--bd)}
+td.nw{background:var(--fltb);color:var(--flt);border:1px solid var(--flt)}td.hh{background:var(--hitb);color:var(--hit);border:1px solid var(--hit)}
+td.cc{outline:2px solid #f59e0b}td.rs{color:var(--mu);font-weight:600;font-size:12px;text-align:left;min-width:60px}
+.res{height:26px;font-size:12px;border-radius:6px}.res.h{background:var(--hitb);color:var(--hit)}.res.f{background:var(--fltb);color:var(--flt)}
+.stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.st{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:12px;text-align:center}
+.st b{display:block;font-size:26px}.st small{color:var(--mu)}
+.log{margin-top:12px;padding:10px 14px;border-left:4px solid var(--ac);background:var(--bg);border-radius:6px;min-height:44px;font-size:14px}
+.bar{display:flex;align-items:center;gap:10px;margin:10px 0}.bar i{width:70px;font-style:normal;font-weight:600;font-size:14px}
+.bar div{flex:1;background:var(--bg);border-radius:8px;height:30px;overflow:hidden}
+.bar u{display:block;height:100%;background:var(--ac);text-decoration:none;color:#fff;padding:5px 10px;font-size:13px;font-weight:700;transition:width .4s;white-space:nowrap}
+.bar.best u{background:var(--hit)}
+.feat{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}.feat div{border:1px solid var(--bd);border-radius:12px;padding:14px;background:var(--bg)}.feat b{display:block;margin-bottom:4px}.feat span{color:var(--mu);font-size:14px}
+.team{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.m{text-align:center;padding:18px;border:1px solid var(--bd);border-radius:12px;background:var(--bg)}
+.av{width:56px;height:56px;border-radius:50%;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;margin:0 auto 10px;font-size:18px}
+.m small{color:var(--mu)}
+.note{font-size:13px;color:var(--mu);margin-top:8px}
+footer{text-align:center;color:var(--mu);font-size:13px;padding:24px 0 40px}
+@media(max-width:700px){nav .w>div a{display:none}.hero{padding:44px 0 36px}}nav{backdrop-filter:blur(8px)}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--ac2);outline-offset:2px}.err{color:var(--flt);font-size:13px;margin-top:6px;min-height:18px}.verdict{margin-top:14px;padding:14px 16px;border-radius:10px;background:var(--bg);border:1px solid var(--bd);font-size:14px}.alert{margin-top:10px;padding:10px 14px;border-radius:8px;background:var(--fltb);color:var(--flt);font-size:13px;font-weight:600;display:none}.alert.on{display:block}.cmpt{width:100%;border-collapse:collapse;margin-top:14px}.cmpt th,.cmpt td{height:auto;min-width:0;padding:8px 10px;border-bottom:1px solid var(--bd);text-align:left;border-radius:0;font-weight:500;font-size:14px}.cmpt th{font-weight:700;font-size:13px}.foot b{color:var(--tx)}
+</style></head><body><noscript><p style="padding:20px">Please enable JavaScript to use PageSim.</p></noscript>
+<nav><div class="w"><b>⚙️ PageSim</b><div><a href="#how">How to use</a><a href="#sim">Simulator</a><a href="#compare">Compare</a><a href="#about">Features</a><a href="#team">Team</a><button id="th" style="margin-left:14px;padding:5px 10px">🌓</button></div></div></nav>
+
+<header class="hero"><div class="w">
+<h1>Page Replacement <span>Algorithm Visualizer</span></h1>
+<p>Watch FIFO, LRU and Optimal decide which memory page to evict, step by step, and compare their page faults instantly.</p>
+<div class="badges"><span>Operating Systems</span><span>Virtual Memory</span><span>Step-by-step GUI</span><span>Belady’s Anomaly demo</span><span>Frame-sweep analysis</span></div><div class="cta"><a class="a" href="#sim">Launch simulator</a><a class="b" href="#how">How it works</a></div>
+</div></header>
+
+<main class="w"><section class="card" id="how"><h2>How to use</h2><div class="steps"><div><em>1</em><b>Enter a reference string</b><span>Type page numbers separated by spaces, press Random, or pick a preset.</span></div><div><em>2</em><b>Set the frames</b><span>Choose how many memory frames (1 to 8) are available to the OS.</span></div><div><em>3</em><b>Pick an algorithm</b><span>Switch between FIFO, LRU and Optimal. The panel below explains each one.</span></div><div><em>4</em><b>Play and analyse</b><span>Watch each hit, fault and eviction, then compare all algorithms and the frame-sweep chart.</span></div></div><p class="note">Shortcuts: <span class="key">Space</span> play or pause &nbsp; <span class="key">→</span> next step &nbsp; <span class="key">←</span> previous step</p></section>
+<section class="card" id="sim">
+<h2>Simulator</h2>
+<div class="grid">
+<div style="grid-column:span 2"><label>Reference string (space or comma separated)</label><input id="ref" value="7 0 1 2 0 3 0 4 2 3 0 3 2 1 2 0 1 7 0 1"></div>
+<div><label>Number of frames</label><input id="nf" type="number" min="1" max="8" value="3"></div>
+<div><label>Preset</label><select id="pre"><option value="">Choose a preset…</option><option value="7 0 1 2 0 3 0 4 2 3 0 3 2 1 2 0 1 7 0 1|3">Classic textbook (3 frames)</option><option value="1 2 3 4 1 2 5 1 2 3 4 5|3">Belady's anomaly (3 frames)</option><option value="1 2 3 4 1 2 5 1 2 3 4 5|4">Belady's anomaly (4 frames)</option><option value="1 2 3 4 2 1 5 6 2 1 2 3 7 6 3 2 1 2 3 6|4">Mixed locality (4 frames)</option></select></div>
+</div>
+<div class="err" id="err" role="alert"></div><div class="row tabs" id="tabs"><button data-a="FIFO" class="on">FIFO</button><button data-a="LRU">LRU</button><button data-a="OPT">Optimal</button>
+<span style="flex:1"></span><button id="rnd">🎲 Random</button></div>
+<div class="row"><button class="p" id="play">▶ Play</button><button id="prev">◀ Step</button><button id="next">Step ▶</button><button id="end">⏭ Finish</button><button id="rst">↺ Reset</button>
+<label style="margin:0 0 0 8px">Speed</label><input id="sp" type="range" min="1" max="10" value="5" style="width:120px"></div>
+<div class="info" id="info"></div><div class="log" id="log">Press Play or Step to begin.</div>
+<h3 style="margin:18px 0 4px;font-size:15px;color:var(--mu)">Reference string</h3>
+<div class="strip"><div class="cells" id="cells"></div></div>
+<h3 style="margin:14px 0 4px;font-size:15px;color:var(--mu)">Memory frames over time</h3>
+<div class="scroll"><table id="tbl"></table></div>
+<div class="note">🟥 red = newly loaded (page fault) &nbsp; 🟩 green = hit &nbsp; ◻ outlined = current step</div>
+</section>
+
+<section class="card"><h2>Live statistics</h2>
+<div class="stats"><div class="st"><b id="s1">0</b><small>Page faults</small></div><div class="st"><b id="s2">0</b><small>Page hits</small></div><div class="st"><b id="s3">0%</b><small>Hit ratio</small></div><div class="st"><b id="s4">0%</b><small>Fault rate</small></div></div></section>
+
+<section class="card" id="compare"><h2>Algorithm comparison</h2>
+<div id="cmp"></div><div class="verdict" id="verdict"></div><div class="scroll"><table class="cmpt" id="cmpt"></table></div><div class="note" id="cmpn"></div></section>
+
+<section class="card"><h2>Faults vs number of frames</h2><div id="sweep"></div><div class="alert" id="bel"></div><div class="lg"><span><i style="background:#f59e0b"></i>FIFO</span><span><i style="background:#6366f1"></i>LRU</span><span><i style="background:#0d9488"></i>Optimal</span></div><div class="note">Runs every algorithm for 1 to 8 frames on your reference string. A rising FIFO line reveals Belady’s anomaly.</div></section>
+<section class="card" id="about"><h2>Key features</h2>
+<div class="feat">
+<div><b>🔁 FIFO</b><span>Evicts the page that has been in memory the longest. Simple, but can suffer Belady's anomaly.</span></div>
+<div><b>🕒 LRU</b><span>Evicts the least recently used page, exploiting temporal locality. A stack algorithm.</span></div>
+<div><b>🔮 Optimal</b><span>Evicts the page whose next use is farthest away. The theoretical lower bound on faults.</span></div>
+<div><b>🎬 Step-by-step animation</b><span>Play, pause, step forward or back, change speed, or jump to the end.</span></div>
+<div><b>📊 Side-by-side comparison</b><span>All three algorithms run on the same input with the winner highlighted.</span></div>
+<div><b>⚠️ Belady's anomaly demo</b><span>One-click preset shows FIFO faulting more with extra frames.</span></div><div><b>📉 Frame-sweep analysis</b><span>A line chart of faults for 1 to 8 frames, so you see how memory size changes each algorithm.</span></div><div><b>🧾 Eviction tracking</b><span>A dedicated row shows exactly which page was evicted at every fault.</span></div><div><b>🧠 Built-in explanations</b><span>Each algorithm shows its rule, complexity, strengths and weakness, ideal for revision.</span></div><div><b>⌨️ Keyboard control</b><span>Space, left and right arrows drive the simulation hands-free during a presentation.</span></div><div><b>⚡ Instant, no install</b><span>Pure client-side code. Every input change recomputes all results immediately.</span></div>
+</div></section>
+
+<section class="card" id="team"><h2>Project team</h2>
+<div class="team">
+<div class="m"><div class="av">VM</div><b>Vinod Muddassu</b><br><small>AP24110011261</small></div>
+<div class="m"><div class="av">VK</div><b>Venkatesh Kailasa</b><br><small>AP24110011265</small></div>
+<div class="m"><div class="av">PH</div><b>Poojitha Haridasula</b><br><small>AP24110011343</small></div>
+</div></section>
+</main>
+<footer class="foot"><b>PageSim</b> · Page Replacement Algorithm Visualizer<br>Operating Systems · External Lab Project<br>Vinod Muddassu (AP24110011261) · Venkatesh Kailasa (AP24110011265) · Poojitha Haridasula (AP24110011343)</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+let algo="FIFO",step=0,timer=null,data=[];
+const NAMES={FIFO:"FIFO",LRU:"LRU",OPT:"Optimal"};
+function parse(){return $("ref").value.split(/[\s,]+/).filter(x=>/^\d+$/.test(x)).map(Number).slice(0,40)}
+function nfr(){return Math.max(1,Math.min(8,parseInt($("nf").value)||3))}
+function sim(ref,n,a){
+  let fr=[],last={},out=[],faults=0;
+  ref.forEach((p,i)=>{
+    last[p]=i;let hit=fr.includes(p),victim=null;
+    if(!hit){faults++;
+      if(fr.length<n)fr.push(p);
+      else{let k=0;
+        if(a==="FIFO")k=0;
+        else if(a==="LRU"){let m=1e9;fr.forEach((q,j)=>{if(last[q]<m){m=last[q];k=j}})}
+        else{let far=-1;fr.forEach((q,j)=>{let nx=ref.indexOf(q,i+1);if(nx<0)nx=1e9+j;if(nx>far){far=nx;k=j}})}
+        victim=fr[k];
+        if(a==="FIFO"){fr.shift();fr.push(p)}else fr[k]=p;
+      }
+    }
+    out.push({p,hit,victim,fr:[...fr],nw:hit?-1:fr.indexOf(p)});
+  });
+  return{steps:out,faults};
+}
+function run(){const raw=$("ref").value.split(/[\s,]+/).filter(Boolean),bad=raw.filter(x=>!/^\d+$/.test(x)),f=parseInt($("nf").value);let m="";if(!raw.length)m="Enter at least one page number.";else if(bad.length)m="Ignored invalid entries: "+bad.slice(0,5).join(", ")+" (use whole numbers only).";else if(raw.length>40)m="Only the first 40 references are used.";else if(!(f>=1&&f<=8))m="Frames must be between 1 and 8; using "+nfr()+".";$("err").textContent=m;data=sim(parse(),nfr(),algo).steps;step=0;draw()}
+function draw(){
+  const ref=parse(),n=nfr();
+  $("cells").innerHTML=ref.map((p,i)=>`<div class="cell ${i===step-1?'cur':''}">${p}</div>`).join("");
+  let h='<tr><td class="rs"></td>'+data.slice(0,step).map((s,i)=>`<th>${i+1}</th>`).join("")+"</tr>";
+  for(let r=0;r<n;r++){
+    h+=`<tr><td class="rs">Frame ${r+1}</td>`+data.slice(0,step).map((s,i)=>{
+      const v=s.fr[r];if(v===undefined)return'<td class="fr"></td>';
+      const c=[];if(r===s.nw&&!s.hit)c.push("nw");else c.push("fr");if(i===step-1)c.push("cc");
+      return`<td class="${c.join(' ')}">${v}</td>`}).join("")+"</tr>";
+  }
+  h+='<tr><td class="rs">Result</td>'+data.slice(0,step).map(s=>`<td class="res ${s.hit?'h':'f'}">${s.hit?'HIT':'FAULT'}</td>`).join("")+"</tr>";h+='<tr><td class="rs">Evicted</td>'+data.slice(0,step).map(s=>`<td style="color:var(--flt);font-size:14px">${s.victim===null?'–':s.victim}</td>`).join("")+"</tr>";
+  $("tbl").innerHTML=h;
+  const done=data.slice(0,step),f=done.filter(s=>!s.hit).length,hh=done.length-f,t=done.length||1;
+  $("s1").textContent=f;$("s2").textContent=hh;$("s3").textContent=(hh/t*100).toFixed(1)+"%";$("s4").textContent=(f/t*100).toFixed(1)+"%";
+  const s=data[step-1];
+  $("log").textContent=!s?"Press Play or Step to begin.":s.hit?`Step ${step}: page ${s.p} is already in memory → HIT.`:s.victim!==null?`Step ${step}: page ${s.p} not found → FAULT. Evicted page ${s.victim} using ${NAMES[algo]}.`:`Step ${step}: page ${s.p} not found → FAULT. Free frame available, loaded.`;
+  if(step>=data.length)stop();
+  compare();
+}
+function compare(){sweep();info();
+  const ref=parse(),n=nfr(),r=Object.keys(NAMES).map(a=>({a,f:sim(ref,n,a).faults})),mx=Math.max(...r.map(x=>x.f),1),mn=Math.min(...r.map(x=>x.f));
+  $("cmp").innerHTML=r.map(x=>`<div class="bar ${x.f===mn?'best':''}"><i>${NAMES[x.a]}</i><div><u style="width:${Math.max(x.f/mx*100,12)}%">${x.f} faults · ${((ref.length-x.f)/Math.max(ref.length,1)*100).toFixed(0)}% hit</u></div></div>`).join("");
+  $("cmpn").textContent=`Green = fewest faults for ${ref.length} references with ${n} frames. Optimal is always the lower bound.`;const L=Math.max(ref.length,1),fi=r[0].f,lr=r[1].f,op=r[2].f,d=fi?Math.round((fi-lr)/fi*100):0;$("verdict").innerHTML=ref.length?`<b>Analysis:</b> Optimal gives the fewest faults (${op}). LRU produces ${d>=0?d+"% fewer":-d+"% more"} faults than FIFO (${lr} vs ${fi}).`:"Enter a reference string to see the analysis.";$("cmpt").innerHTML="<tr><th>Algorithm</th><th>Faults</th><th>Hits</th><th>Hit ratio</th><th>Time per access</th></tr>"+r.map((x,i)=>`<tr><td>${NAMES[x.a]}</td><td>${x.f}</td><td>${ref.length-x.f}</td><td>${((ref.length-x.f)/L*100).toFixed(1)}%</td><td>${["O(1)","O(n)","O(n²)"][i]}</td></tr>`).join("");
+}
+const INFO={FIFO:["Evict the oldest loaded page","O(1) per access (queue)","Simple, low overhead","Ignores usage; Belady’s anomaly"],LRU:["Evict the least recently used page","O(n) scan or O(1) with hash and list","Uses temporal locality; no anomaly","Needs usage tracking"],OPT:["Evict the page used farthest in future","O(n²) look-ahead","Fewest faults possible","Needs future knowledge; benchmark only"]};
+function info(){const i=INFO[algo],l=["Rule","Complexity","Strength","Weakness"];$("info").innerHTML=i.map((t,k)=>`<div><b>${l[k]}</b>${t}</div>`).join("")}
+function sweep(){const ref=parse(),W=640,H=230,m=34,cs={FIFO:"#f59e0b",LRU:"#6366f1",OPT:"#0d9488"},ks=[1,2,3,4,5,6,7,8],ser=Object.keys(cs).map(a=>({a,v:ks.map(k=>sim(ref,k,a).faults)})),mx=Math.max(ref.length,1),X=i=>m+i*(W-2*m)/7,Y=v=>H-m-v*(H-2*m)/mx;let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">`;for(let g=0;g<=4;g++){const v=mx*g/4;s+=`<line x1="${m}" x2="${W-m}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--bd)"/><text x="${m-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--mu)">${Math.round(v)}</text>`}ks.forEach((k,i)=>{s+=`<text x="${X(i)}" y="${H-m+18}" text-anchor="middle" font-size="11" fill="${k===nfr()?'var(--tx)':'var(--mu)'}" font-weight="${k===nfr()?700:400}">${k}</text>`});ser.forEach(r=>{s+=`<polyline fill="none" stroke="${cs[r.a]}" stroke-width="2.5" points="${r.v.map((v,i)=>X(i)+','+Y(v)).join(' ')}"/>`+r.v.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3.5" fill="${cs[r.a]}"/>`).join("")});const fv=ser[0].v,bi=fv.findIndex((v,i)=>i<7&&fv[i+1]>v);$("bel").className="alert"+(bi>=0?" on":"");$("bel").textContent=bi>=0?`⚠ Belady’s anomaly detected: FIFO faults rise from ${fv[bi]} to ${fv[bi+1]} when frames increase from ${bi+1} to ${bi+2}.`:"";$("sweep").innerHTML=s+`<text x="${W/2}" y="${H-2}" text-anchor="middle" font-size="11" fill="var(--mu)">Number of frames</text></svg>`}
+document.onkeydown=e=>{if(["INPUT","SELECT"].includes(e.target.tagName))return;if(e.code==="Space"){e.preventDefault();play()}if(e.key==="ArrowRight")$("next").click();if(e.key==="ArrowLeft")$("prev").click()};
+function stop(){clearInterval(timer);timer=null;$("play").textContent="▶ Play"}
+function play(){if(timer){stop();return}if(step>=data.length)step=0;$("play").textContent="⏸ Pause";
+  const tick=()=>{if(step<data.length){step++;draw()}};tick();
+  timer=setInterval(tick,1100-$("sp").value*100)}
+$("play").onclick=play;
+$("next").onclick=()=>{stop();if(step<data.length){step++;draw()}};
+$("prev").onclick=()=>{stop();if(step>0){step--;draw()}};
+$("end").onclick=()=>{stop();step=data.length;draw()};
+$("rst").onclick=()=>{stop();run()};
+$("sp").oninput=()=>{if(timer){stop();play()}};
+document.querySelectorAll("#tabs [data-a]").forEach(b=>b.onclick=()=>{stop();document.querySelectorAll("#tabs [data-a]").forEach(x=>x.classList.remove("on"));b.classList.add("on");algo=b.dataset.a;run()});
+$("pre").onchange=e=>{if(!e.target.value)return;const[r,n]=e.target.value.split("|");$("ref").value=r;$("nf").value=n;stop();run()};
+$("rnd").onclick=()=>{$("ref").value=Array.from({length:18},()=>Math.floor(Math.random()*8)).join(" ");stop();run()};
+$("ref").oninput=()=>{stop();run()};$("nf").oninput=()=>{stop();run()};
+$("th").onclick=()=>{const d=document.documentElement,dark=getComputedStyle(d).getPropertyValue("--bg").trim()==="#0b1020";d.dataset.theme=dark?"light":"dark"};
+run();
+</script></body></html>
