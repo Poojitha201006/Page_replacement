@@ -13,7 +13,7 @@ server {
     index index.html;
     add_header X-Content-Type-Options nosniff;
     add_header X-Frame-Options SAMEORIGIN;
-    gzip on; gzip_types text/html text/css application/javascript;
+    gzip on; gzip_types text/css application/javascript;
     location / { try_files $uri $uri/ =404; }
 }
 CONF
